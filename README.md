@@ -33,3 +33,9 @@ Alternatively, you can set the following environment variables:
 AWS_ACCESS_KEY_ID=AKID1234567890
 AWS_SECRET_ACCESS_KEY=MY-SECRET-KEY
 ```
+
+## Installing
+
+#### Building From Source
+
+This project uses [gb](https://getgb.io/) the Go Build tool. To load vendored dependencies and compile run `./vendor.sh && gb build`
