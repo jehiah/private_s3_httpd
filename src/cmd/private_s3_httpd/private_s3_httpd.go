@@ -14,7 +14,7 @@ import (
 
 func main() {
 	listen := flag.String("listen", ":8080", "address:port to listen on.")
-	bucket := flag.String("bucket", "", "s3 bucket name")
+	bucket := flag.String("bucket", "", "S3 bucket name")
 	logRequests := flag.Bool("log-requests", true, "log HTTP requests")
 	flag.Parse()
 
@@ -23,7 +23,6 @@ func main() {
 	}
 
 	svc := s3.New(&aws.Config{
-		// Credentials: creds,
 		Region: "us-east-1",
 	})
 

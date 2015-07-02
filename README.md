@@ -1,16 +1,16 @@
-s3_private_http
+private_s3_httpd
 ---------------
 
-Private HTTP Server for Amazone S3 content.
+Private HTTP Server for Amazon S3 content.
 
 Amazon S3 provides a public HTTP interface for accessing content, but what if you don't want publicly accessible files?
 
-`s3_private_http` exposes a private HTTP endpoint for a s3 bucket so you can controll access to the data. This is ideal for accessing S3 via HTTP api as a backend data service, or for local http browsing of a private s3 bucket, or for use behind another authentication service (like [oauth2_proxy](https://github.com/bitly/oauth2_proxy)) to secure access.
+`private_s3_httpd` exposes a private HTTP endpoint for an Amazon S3 bucket so you can controll access to the data. This is ideal for accessing S3 via HTTP api as a backend data service, or for local http browsing of a private s3 bucket, or for use behind another authentication service (like [oauth2_proxy](https://github.com/bitly/oauth2_proxy)) to secure access.
 
 
 ```
-Usage of ./s3_private_http:
-  -bucket="": s3 bucket name
+Usage of ./private_s3_httpd:
+  -bucket="": S3 bucket name
   -listen=":8080": address:port to listen on.
   -log-requests=true: log HTTP requests
 ```
