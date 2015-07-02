@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 	"io"
-	"mime"
 	"log"
+	"mime"
 	"net/http"
 	"path"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
@@ -23,7 +23,7 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if key == "/" {
 		key = "/index.html"
 	}
-	
+
 	input := &s3.GetObjectInput{
 		Bucket: aws.String(p.Bucket),
 		Key:    aws.String(key),
@@ -36,7 +36,7 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// log.Printf("request: %#v", awsReq)
 	// err := awsReq.Send()
 	// log.Printf("response: %#v", )
-	
+
 	resp, err := p.Svc.GetObject(input)
 	if awsErr, ok := err.(awserr.Error); ok {
 		if awsErr.Code() == "NoSuchKey" {
@@ -62,7 +62,7 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		ext := path.Ext(req.URL.Path)
 		contentType = mime.TypeByExtension(ext)
 	}
-	
+
 	if resp.ETag != nil && *resp.ETag != "" {
 		fmt.Sprintf("etag %q", resp.ETag)
 		// see https://github.com/aws/aws-sdk-go/issues/304
@@ -75,7 +75,7 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if resp.ContentLength != nil && *resp.ContentLength > 0 {
 		rw.Header().Set("Content-Length", fmt.Sprintf("%d", *resp.ContentLength))
 	}
-	
+
 	io.Copy(rw, resp.Body)
 	resp.Body.Close()
 }
