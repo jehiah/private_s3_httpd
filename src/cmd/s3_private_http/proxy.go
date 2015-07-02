@@ -23,19 +23,33 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if key == "/" {
 		key = "/index.html"
 	}
-	resp, err := p.Svc.GetObject(&s3.GetObjectInput{
+	
+	input := &s3.GetObjectInput{
 		Bucket: aws.String(p.Bucket),
 		Key:    aws.String(key),
-	})
+	}
+	if v := req.Header.Get("If-None-Match"); v != "" {
+		input.IfNoneMatch = aws.String(v)
+	}
+
+	// awsReq, resp := p.Svc.GetObjectRequest(input)
+	// log.Printf("request: %#v", awsReq)
+	// err := awsReq.Send()
+	// log.Printf("response: %#v", )
+	
+	resp, err := p.Svc.GetObject(input)
 	if awsErr, ok := err.(awserr.Error); ok {
 		if awsErr.Code() == "NoSuchKey" {
 			http.Error(rw, "Page Not Found", 404)
+		} else {
+			// A service error occurred.
+			log.Printf("Error: %v %v", awsErr.Code(), awsErr.Message())
+			http.Error(rw, "Internal Error", 500)
 		}
-		
-		// A service error occurred.
-		log.Printf("Error: %v %v", awsErr.Code(), awsErr.Message())
+		return
 	} else if err != nil {
-		http.Error(rw, err.Error(), 500)
+		log.Printf("not aws error %v %s", err, err)
+		http.Error(rw, "Internal Error", 500)
 		return
 	}
 
@@ -48,14 +62,20 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		ext := path.Ext(req.URL.Path)
 		contentType = mime.TypeByExtension(ext)
 	}
+	
+	if resp.ETag != nil && *resp.ETag != "" {
+		fmt.Sprintf("etag %q", resp.ETag)
+		// see https://github.com/aws/aws-sdk-go/issues/304
+		// rw.Header().Set("Etag", *resp.ETag)
+	}
 
 	if contentType != "" {
 		rw.Header().Set("Content-Type", contentType)
 	}
 	if resp.ContentLength != nil && *resp.ContentLength > 0 {
-		rw.Header().Set("Content-Length", fmt.Sprintf("%d", resp.ContentLength))
+		rw.Header().Set("Content-Length", fmt.Sprintf("%d", *resp.ContentLength))
 	}
-
+	
 	io.Copy(rw, resp.Body)
 	resp.Body.Close()
 }
