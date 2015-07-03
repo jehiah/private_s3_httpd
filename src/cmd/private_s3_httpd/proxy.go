@@ -37,16 +37,21 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// err := awsReq.Send()
 	// log.Printf("response: %#v", )
 
+	var is304 bool
 	resp, err := p.Svc.GetObject(input)
 	if awsErr, ok := err.(awserr.Error); ok {
-		if awsErr.Code() == "NoSuchKey" {
+		switch awsErr.Code() {
+		case "NoSuchKey":
 			http.Error(rw, "Page Not Found", 404)
-		} else {
-			// A service error occurred.
+			return
+		case "304NotModified":
+			is304 = true
+			// continue so other headers get set appropriately
+		default:
 			log.Printf("Error: %v %v", awsErr.Code(), awsErr.Message())
 			http.Error(rw, "Internal Error", 500)
+			return
 		}
-		return
 	} else if err != nil {
 		log.Printf("not aws error %v %s", err, err)
 		http.Error(rw, "Internal Error", 500)
@@ -64,9 +69,7 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	if resp.ETag != nil && *resp.ETag != "" {
-		fmt.Sprintf("etag %q", resp.ETag)
-		// see https://github.com/aws/aws-sdk-go/issues/304
-		// rw.Header().Set("Etag", *resp.ETag)
+		rw.Header().Set("Etag", *resp.ETag)
 	}
 
 	if contentType != "" {
@@ -74,6 +77,10 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 	if resp.ContentLength != nil && *resp.ContentLength > 0 {
 		rw.Header().Set("Content-Length", fmt.Sprintf("%d", *resp.ContentLength))
+	}
+
+	if is304 {
+		rw.WriteHeader(304)
 	}
 
 	io.Copy(rw, resp.Body)
