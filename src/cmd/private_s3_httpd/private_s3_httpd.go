@@ -16,6 +16,7 @@ func main() {
 	listen := flag.String("listen", ":8080", "address:port to listen on.")
 	bucket := flag.String("bucket", "", "S3 bucket name")
 	logRequests := flag.Bool("log-requests", true, "log HTTP requests")
+	region := flag.String("region", "us-east-1", "AWS S3 Region")
 	flag.Parse()
 
 	if *bucket == "" {
@@ -23,7 +24,7 @@ func main() {
 	}
 
 	svc := s3.New(&aws.Config{
-		Region: "us-east-1",
+		Region: *region,
 	})
 
 	var h http.Handler
