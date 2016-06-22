@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gorilla/handlers"
 )
@@ -23,8 +24,8 @@ func main() {
 		log.Fatalf("bucket name required")
 	}
 
-	svc := s3.New(&aws.Config{
-		Region: *region,
+	svc := s3.New(session.New(), &aws.Config{
+		Region: region,
 	})
 
 	var h http.Handler
