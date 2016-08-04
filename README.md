@@ -3,6 +3,8 @@ private_s3_httpd
 
 Private HTTP Server for Amazon S3 content.
 
+[![Build Status](https://secure.travis-ci.org/jehiah/private_s3_httpd.png?branch=master)](http://travis-ci.org/jehiah/private_s3_httpd)
+
 Amazon S3 provides a public HTTP interface for accessing content, but what if you don't want publicly accessible files?
 
 `private_s3_httpd` exposes a private HTTP endpoint for an Amazon S3 bucket so you can controll access to the data. This is ideal for accessing S3 via HTTP api as a backend data service, or for local http browsing of a private s3 bucket, or for use behind another authentication service (like [oauth2_proxy](https://github.com/bitly/oauth2_proxy)) to secure access.
