@@ -18,15 +18,27 @@ func main() {
 	bucket := flag.String("bucket", "", "S3 bucket name")
 	logRequests := flag.Bool("log-requests", true, "log HTTP requests")
 	region := flag.String("region", "us-east-1", "AWS S3 Region")
+	s3Endpoint := flag.String("s3-endpoint", "", "alternate http://address for accessing s3 (for configuring with minio.io)")
 	flag.Parse()
 
 	if *bucket == "" {
 		log.Fatalf("bucket name required")
 	}
 
-	svc := s3.New(session.New(), &aws.Config{
-		Region: region,
-	})
+	var svc *s3.S3
+	if *s3Endpoint != "" {
+		log.Printf("Using alternate S3 Endpoint diwht DisableSSL:true, S3ForcePathStyle:true %q", *s3Endpoint)
+		svc = s3.New(session.New(), &aws.Config{
+			Region:           region,
+			Endpoint:         s3Endpoint,
+			DisableSSL:       aws.Bool(true),
+			S3ForcePathStyle: aws.Bool(true),
+		})
+	} else {
+		svc = s3.New(session.New(), &aws.Config{
+			Region: region,
+		})
+	}
 
 	var h http.Handler
 	h = &Proxy{
