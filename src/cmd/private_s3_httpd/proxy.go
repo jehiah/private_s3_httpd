@@ -7,6 +7,7 @@ import (
 	"mime"
 	"net/http"
 	"path"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -20,8 +21,8 @@ type Proxy struct {
 
 func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	key := req.URL.Path
-	if key == "/" {
-		key = "/index.html"
+	if strings.HasSuffix(key, "/") {
+		key = key + "index.html"
 	}
 
 	input := &s3.GetObjectInput{
