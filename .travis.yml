@@ -2,11 +2,11 @@ language: go
 go:
   - 1.7
   - 1.8
-script:
+install:
   - go get github.com/constabulary/gb/...
   - ./vendor.sh
-  - gb test
-  - gb build
-sudo: false
+script:
+  - ./test.sh
 notifications:
   email: false
+sudo: false
