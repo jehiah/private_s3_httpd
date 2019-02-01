@@ -49,7 +49,7 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			is304 = true
 			// continue so other headers get set appropriately
 		default:
-			log.Printf("Error: %v %v", awsErr.Code(), awsErr.Message())
+			log.Printf("Error: %v %v %v", awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
 			http.Error(rw, "Internal Error", 500)
 			return
 		}
