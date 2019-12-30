@@ -3,7 +3,7 @@ private_s3_httpd
 
 Private HTTP Server for Amazon S3 content.
 
-[![Build Status](https://secure.travis-ci.org/jehiah/private_s3_httpd.png?branch=master)](http://travis-ci.org/jehiah/private_s3_httpd)
+[![Build Status](https://secure.travis-ci.org/jehiah/private_s3_httpd.png?branch=master)](http://travis-ci.org/jehiah/private_s3_httpd) [![GitHub release](https://img.shields.io/github/release/jehiah/private_s3_httpd.svg)](https://github.com/jehiah/private_s3_httpd/releases/latest)
 
 Amazon S3 provides a public HTTP interface for accessing content, but what if you don't want publicly accessible files?
 
@@ -43,8 +43,3 @@ AWS_ACCESS_KEY_ID=AKID1234567890
 AWS_SECRET_ACCESS_KEY=MY-SECRET-KEY
 ```
 
-## Installing
-
-#### Building From Source
-
-This project uses [gb](https://getgb.io/) the Go Build tool. To load vendored dependencies and compile run `./vendor.sh && gb build`

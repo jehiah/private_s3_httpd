@@ -7,10 +7,6 @@ APP=private_s3_httpd
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "working dir $DIR"
 
-rm -rf $DIR/vendor
-echo "... refreshing vendor directory"
-./vendor.sh
-
 echo "... running tests"
 ./test.sh || exit 1
 
@@ -23,9 +19,9 @@ for os in linux darwin; do
     echo "... building v$version for $os/$arch"
     BUILD=$(mktemp -d -t sortdb)
     TARGET="$APP-$version.$os-$arch.$goversion"
-    GOOS=$os GOARCH=$arch CGO_ENABLED=0 gb build
     mkdir -p $BUILD/$TARGET
-    cp bin/$APP-$os-$arch $BUILD/$TARGET/$APP
+    GOOS=$os GOARCH=$arch CGO_ENABLED=0 go build -o $BUILD/$TARGET/$APP ./src/cmd/private_s3_httpd
+
     pushd $BUILD >/dev/null
     tar czvf $TARGET.tar.gz $TARGET
     if [ -e $DIR/dist/$TARGET.tar.gz ]; then
