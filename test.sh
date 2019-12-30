@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
-gb test -timeout 60s
+go test -timeout 60s ./...
 # gb test -timeout 60s -race
-gb build
+mkdir -p bin
+go build -o bin/private_s3_httpd ./src/cmd/private_s3_httpd

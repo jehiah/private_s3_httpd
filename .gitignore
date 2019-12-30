@@ -2,3 +2,4 @@ pkg
 bin
 vendor
 dist
+private_s3_httpd
