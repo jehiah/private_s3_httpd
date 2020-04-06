@@ -11,17 +11,21 @@ Amazon S3 provides a public HTTP interface for accessing content, but what if yo
 
 
 ```
-Usage of bin/private_s3_httpd:
+Usage of ./private_s3_httpd:
+  -basic-auth
+        Enforce Basic Auth
   -bucket string
-    	S3 bucket name
+        S3 bucket name
   -listen string
-    	address:port to listen on. (default ":8080")
+        address:port to listen on. (default ":8080")
   -log-requests
-    	log HTTP requests (default true)
+        log HTTP requests (default true)
   -region string
-    	AWS S3 Region (default "us-east-1")
+        AWS S3 Region (default "us-east-1")
   -s3-endpoint string
-    	alternate http://address for accessing s3 (for configuring with minio.io)
+        alternate http://address for accessing s3 (for configuring with minio.io)
+  -version
+        print version string
 ```
 
 ## Configuring S3 Credentials
@@ -41,5 +45,13 @@ Alternatively, you can set the following environment variables:
 ```
 AWS_ACCESS_KEY_ID=AKID1234567890
 AWS_SECRET_ACCESS_KEY=MY-SECRET-KEY
+```
+
+If you want the to enforce basic auth for authentication against the service
+set basic auth credentials as environment variables:
+
+```
+export PRIVATE_S3_HTTPD_BASIC_AUTH_USERNAME=user
+export PRIVATE_S3_HTTPD_BASIC_AUTH_PASSWORD=secret
 ```
 
