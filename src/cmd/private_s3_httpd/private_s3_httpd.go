@@ -20,6 +20,7 @@ func main() {
 	listen := flag.String("listen", ":8080", "address:port to listen on.")
 	bucket := flag.String("bucket", "", "S3 bucket name")
 	logRequests := flag.Bool("log-requests", true, "log HTTP requests")
+	basicAuthEnabled := flag.Bool("basic-auth", false, "Enforce Basic Auth")
 	region := flag.String("region", "us-east-1", "AWS S3 Region")
 	s3Endpoint := flag.String("s3-endpoint", "", "alternate http://address for accessing s3 (for configuring with minio.io)")
 	flag.Parse()
@@ -31,6 +32,15 @@ func main() {
 
 	if *bucket == "" {
 		log.Fatalf("bucket name required")
+	}
+
+	basicAuthUsername, basicAuthUsernameIsSet := os.LookupEnv("PRIVATE_S3_HTTPD_BASIC_AUTH_USERNAME")
+	basicAuthPassword, basicAuthPasswordIsSet := os.LookupEnv("PRIVATE_S3_HTTPD_BASIC_AUTH_PASSWORD")
+
+	if *basicAuthEnabled {
+		if !basicAuthUsernameIsSet || !basicAuthPasswordIsSet {
+			log.Fatalf("Error: Please configure Basic Auth credentials.")
+		}
 	}
 
 	var svc *s3.S3
@@ -50,8 +60,11 @@ func main() {
 
 	var h http.Handler
 	h = &Proxy{
-		Bucket: *bucket,
-		Svc:    svc,
+		Bucket:            *bucket,
+		Svc:               svc,
+		basicAuthEnabled:  *basicAuthEnabled,
+		basicAuthUsername: basicAuthUsername,
+		basicAuthPassword: basicAuthPassword,
 	}
 	if *logRequests {
 		h = handlers.CombinedLoggingHandler(os.Stdout, h)

@@ -15,11 +15,26 @@ import (
 )
 
 type Proxy struct {
-	Bucket string
-	Svc    *s3.S3
+	Bucket            string
+	Svc               *s3.S3
+	basicAuthEnabled  bool
+	basicAuthUsername string
+	basicAuthPassword string
 }
 
 func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+
+	if p.basicAuthEnabled {
+
+		requestbasicAuthUser, requestbasicAuthPassword, _ := req.BasicAuth()
+
+		if p.basicAuthUsername != requestbasicAuthUser || p.basicAuthPassword != requestbasicAuthPassword {
+			rw.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
+			http.Error(rw, "Unauthorized.", http.StatusUnauthorized)
+			return
+		}
+	}
+
 	key := req.URL.Path
 	if strings.HasSuffix(key, "/") {
 		key = key + "index.html"
