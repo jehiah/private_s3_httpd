@@ -13,19 +13,19 @@ Amazon S3 provides a public HTTP interface for accessing content, but what if yo
 ```
 Usage of ./private_s3_httpd:
   -basic-auth
-        Enforce Basic Auth
+       Enforce Basic Auth
   -bucket string
-        S3 bucket name
+       S3 bucket name
   -listen string
-        address:port to listen on. (default ":8080")
+       address:port to listen on. (default ":8080")
   -log-requests
-        log HTTP requests (default true)
+       log HTTP requests (default true)
   -region string
-        AWS S3 Region (default "us-east-1")
+       AWS S3 Region (default "us-east-1")
   -s3-endpoint string
-        alternate http://address for accessing s3 (for configuring with minio.io)
+       alternate http://address for accessing s3 (for configuring with minio.io)
   -version
-        print version string
+       print version string
 ```
 
 ## Configuring S3 Credentials
