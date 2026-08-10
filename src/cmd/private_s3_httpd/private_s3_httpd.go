@@ -1,17 +1,19 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gorilla/handlers"
 )
 
@@ -33,19 +35,24 @@ func main() {
 		log.Fatalf("bucket name required")
 	}
 
-	var svc *s3.S3
+	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(*region))
+	if err != nil {
+		log.Fatalf("unable to load AWS config: %v", err)
+	}
+
+	var svc *s3.Client
 	if *s3Endpoint != "" {
-		log.Printf("Using alternate S3 Endpoint diwht DisableSSL:true, S3ForcePathStyle:true %q", *s3Endpoint)
-		svc = s3.New(session.New(), &aws.Config{
-			Region:           region,
-			Endpoint:         s3Endpoint,
-			DisableSSL:       aws.Bool(true),
-			S3ForcePathStyle: aws.Bool(true),
+		endpoint := *s3Endpoint
+		if !strings.Contains(endpoint, "://") {
+			endpoint = "http://" + endpoint
+		}
+		log.Printf("Using alternate S3 Endpoint with UsePathStyle:true %q", endpoint)
+		svc = s3.NewFromConfig(cfg, func(o *s3.Options) {
+			o.BaseEndpoint = aws.String(endpoint)
+			o.UsePathStyle = true
 		})
 	} else {
-		svc = s3.New(session.New(), &aws.Config{
-			Region: region,
-		})
+		svc = s3.NewFromConfig(cfg)
 	}
 
 	var h http.Handler

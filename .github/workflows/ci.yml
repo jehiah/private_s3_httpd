@@ -1,0 +1,26 @@
+name: Go package
+
+on:
+  push:         {branches: [master]}
+  pull_request: {branches: [master]}
+
+jobs:
+  ci:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: 'stable'
+          cache: 'true'
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v9
+        with:
+          version: latest
