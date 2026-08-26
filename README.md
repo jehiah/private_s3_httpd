@@ -3,7 +3,7 @@ private_s3_httpd
 
 Private HTTP Server for Amazon S3 content.
 
-![CI Status](https://github.com/bitly/little_bigtable/actions/workflows/ci.yaml/badge.svg?branch=master)
+![CI Status](https://github.com/bitly/private_s3_httpd/actions/workflows/ci.yaml/badge.svg?branch=master)
 [![GitHub release](https://img.shields.io/github/release/jehiah/private_s3_httpd.svg)](https://github.com/jehiah/private_s3_httpd/releases/latest)
 
 Amazon S3 provides a public HTTP interface for accessing content, but what if you don't want publicly accessible files?
@@ -12,7 +12,7 @@ Amazon S3 provides a public HTTP interface for accessing content, but what if yo
 
 
 ```
-Usage of bin/private_s3_httpd:
+Usage of ./private_s3_httpd:
   -bucket string
     	S3 bucket name
   -listen string
@@ -23,6 +23,8 @@ Usage of bin/private_s3_httpd:
     	AWS S3 Region (default "us-east-1")
   -s3-endpoint string
     	alternate http://address for accessing s3 (for configuring with minio.io)
+  -version
+    	print version string
 ```
 
 ## Configuring S3 Credentials

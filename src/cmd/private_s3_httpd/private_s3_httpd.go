@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"runtime"
 	"strings"
 	"time"
 
@@ -27,7 +26,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Printf("private_s3_httpd v%s (built w/%s)\n", VERSION, runtime.Version())
+		fmt.Printf("%s\n", ShowVersion())
 		return
 	}
 
