@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -9,18 +10,19 @@ import (
 	"path"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
 type Proxy struct {
 	Bucket string
-	Svc    *s3.S3
+	Svc    *s3.Client
 }
 
 func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	key := req.URL.Path
+	key := strings.TrimLeft(req.URL.Path, "/")
 	if strings.HasSuffix(key, "/") {
 		key = key + "index.html"
 	}
@@ -33,30 +35,23 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		input.IfNoneMatch = aws.String(v)
 	}
 
-	// awsReq, resp := p.Svc.GetObjectRequest(input)
-	// log.Printf("request: %#v", awsReq)
-	// err := awsReq.Send()
-	// log.Printf("response: %#v", )
-
 	var is304 bool
-	resp, err := p.Svc.GetObject(input)
-	if awsErr, ok := err.(awserr.Error); ok {
-		switch awsErr.Code() {
-		case s3.ErrCodeNoSuchKey:
+	resp, err := p.Svc.GetObject(req.Context(), input)
+	if err != nil {
+		var noSuchKey *types.NoSuchKey
+		var respErr *smithyhttp.ResponseError
+		switch {
+		case errors.As(err, &noSuchKey):
 			http.Error(rw, "Page Not Found", 404)
 			return
-		case "NotModified":
+		case errors.As(err, &respErr) && respErr.HTTPStatusCode() == http.StatusNotModified:
 			is304 = true
 			// continue so other headers get set appropriately
 		default:
-			log.Printf("Error: %v %v %v", awsErr.Code(), awsErr.Message(), awsErr.OrigErr())
+			log.Printf("Error: %v", err)
 			http.Error(rw, "Internal Error", 500)
 			return
 		}
-	} else if err != nil {
-		log.Printf("not aws error %v %s", err, err)
-		http.Error(rw, "Internal Error", 500)
-		return
 	}
 
 	var contentType string
@@ -83,20 +78,11 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if is304 {
 		rw.WriteHeader(304)
 	} else {
-		io.Copy(rw, resp.Body)
-		resp.Body.Close()
+		if _, err := io.Copy(rw, resp.Body); err != nil {
+			log.Printf("Error copying response body: %v", err)
+		}
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Error closing response body: %v", err)
+		}
 	}
 }
-
-// resp, err := svc.ListObjects(&s3.ListObjectsInput{
-// 	Bucket:  aws.String(settings.GetString("s3_bucket")),
-// 	Prefix:  aws.String("data/"),
-// 	MaxKeys: aws.Long(1000),
-// })
-// if awsErr, ok := err.(awserr.Error); ok {
-// 	// A service error occurred.
-// 	log.Fatalf("Error: %v %v", awsErr.Code, awsErr.Message)
-// } else if err != nil {
-// 	// A non-service error occurred.
-// 	log.Fatalf("%v", err)
-// }

@@ -3,7 +3,8 @@ private_s3_httpd
 
 Private HTTP Server for Amazon S3 content.
 
-[![Build Status](https://secure.travis-ci.org/jehiah/private_s3_httpd.png?branch=master)](http://travis-ci.org/jehiah/private_s3_httpd) [![GitHub release](https://img.shields.io/github/release/jehiah/private_s3_httpd.svg)](https://github.com/jehiah/private_s3_httpd/releases/latest)
+![CI Status](https://github.com/bitly/little_bigtable/actions/workflows/ci.yaml/badge.svg?branch=master)
+[![GitHub release](https://img.shields.io/github/release/jehiah/private_s3_httpd.svg)](https://github.com/jehiah/private_s3_httpd/releases/latest)
 
 Amazon S3 provides a public HTTP interface for accessing content, but what if you don't want publicly accessible files?
 
